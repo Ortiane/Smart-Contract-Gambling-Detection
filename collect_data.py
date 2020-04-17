@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import requests
 from tabulate import tabulate
@@ -6,6 +7,7 @@ from config import *
 
 END_BLOCK = "999999999"
 DICE_2_WIN = "0xD1CEeeeee83F8bCF3BEDad437202b6154E9F5405"
+
 
 def hex_string_to_int_string(x):
     if x == "0x":
@@ -23,7 +25,7 @@ def get_contract_info(
     df = pd.DataFrame.from_dict(requests.get(txn_req).json()["result"])
     # Get internal transactions
     internal_req = f"http://api.etherscan.io/api?module=account&action=txlistinternal&address={contract_address}&startblock=0&endblock={END_BLOCK}&page=1&offset=100&sort=desc&apikey={ETHERSCAN_API_KEY}"
-    internal_df = pd.DataFrame.from_dict(requests.get(internal_req).json()["result"])    
+    internal_df = pd.DataFrame.from_dict(requests.get(internal_req).json()["result"])
     internal_df.rename(
         columns={
             "from": "internal_from",
@@ -70,8 +72,7 @@ def get_contract_info(
     return df
 
 
-# ["label": 0,1, "values": list of integers (positive = sending money, negative = receiving)]
-if __name__ == "__main__":
+def print_contract_info(contract_address, count=100):
     with pd.option_context(
         "display.max_rows",
         None,
@@ -80,12 +81,11 @@ if __name__ == "__main__":
         "display.max_colwidth",
         -1,
     ):
-    # row 1: [[v_0,i_0,t_0],[v_1,i_1,t_1],... [v_t,i_t,t_t]]
         print(
             tabulate(
                 get_contract_info(
-                    "0x8995AD7dEaBd17c31b62AC89EE5f7D850a4BeDb0",
-                    count=100,
+                    contract_address,
+                    count=count,
                     column_names=[
                         "blockNumber",
                         "from",
@@ -110,3 +110,40 @@ if __name__ == "__main__":
                 ],
             )
         )
+
+
+def process_single_contract(contract_address, contract_label, count):
+    return (
+        [contract_label, contract_address]
+        + list(
+            get_contract_info(
+                contract_address,
+                count=count,
+                column_names=["value", "internal_value", "token_value",],
+            )
+            .to_numpy()
+            .flatten()
+        )
+    )
+
+
+# ["label": 0,1, "values": list of integers (positive = sending money, negative = receiving)]
+if __name__ == "__main__":
+    # row 1: [[v_0,i_0,t_0],[v_1,i_1,t_1],... [v_t,i_t,t_t]]
+    contract_list = open("contracts.txt", "r").readlines()
+    with open("data.csv", "w+") as contract_info_fh:
+        for contract in contract_list:
+            contract_id, contract_label = contract.split(",")
+            contract_id = contract_id.strip()
+            contract_label = int(contract_label)
+            contract_info_fh.write(
+                ",".join(
+                    [
+                        str(item)
+                        for item in process_single_contract(
+                            contract_id, contract_label, 100
+                        )
+                    ]
+                ) + '\n'
+            )
+            contract_info_fh.flush()
