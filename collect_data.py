@@ -132,6 +132,7 @@ if __name__ == "__main__":
     # row 1: [[v_0,i_0,t_0],[v_1,i_1,t_1],... [v_t,i_t,t_t]]
     contract_list = open("contracts.txt", "r").readlines()
     with open("data.csv", "w+") as contract_info_fh:
+        count = 0
         for contract in contract_list:
             contract_id, contract_label = contract.split(",")
             contract_id = contract_id.strip()
@@ -141,9 +142,11 @@ if __name__ == "__main__":
                     [
                         str(item)
                         for item in process_single_contract(
-                            contract_id, contract_label, 100
+                            contract_id, contract_label, 1000
                         )
                     ]
                 ) + '\n'
             )
             contract_info_fh.flush()
+            print("Finished contract " + str(count))
+            count += 1
