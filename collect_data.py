@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import requests
 from tabulate import tabulate
-
+import csv
 from config import *
 
 END_BLOCK = "999999999"
@@ -17,7 +17,7 @@ def hex_string_to_int_string(x):
 
 def get_contract_info(
     contract_address,
-    count=2000,
+    count=100,
     column_names=["value", "internal_value", "token_value"],
 ):
     # Get transactions
@@ -126,15 +126,23 @@ def process_single_contract(contract_address, contract_label, count):
         )
     )
 
-
-# ["label": 0,1, "values": list of integers (positive = sending money, negative = receiving)]
-if __name__ == "__main__":
-    # row 1: [[v_0,i_0,t_0],[v_1,i_1,t_1],... [v_t,i_t,t_t]]
-    contract_list = open("contracts.txt", "r").readlines()
+# row 1: [[v_0,i_0,t_0],[v_1,i_1,t_1],... [v_t,i_t,t_t]]
+def collect(max_seq_len):
+    with open("contracts.csv", "r") as f:
+        reader = csv.reader(f, delimiter=',')
+        contract_list = []
+        count = 0
+        for line in reader:
+            if count == 0:
+                count = 1
+                continue
+            contract_list.append(line[:2])
     with open("data.csv", "w+") as contract_info_fh:
         count = 0
         for contract in contract_list:
-            contract_id, contract_label = contract.split(",")
+            #contract_id, contract_label = contract.split(",")
+            contract_id = contract[0]
+            contract_label = contract[1]
             contract_id = contract_id.strip()
             contract_label = int(contract_label)
             contract_info_fh.write(
@@ -142,11 +150,15 @@ if __name__ == "__main__":
                     [
                         str(item)
                         for item in process_single_contract(
-                            contract_id, contract_label, 1000
+                            contract_id, contract_label, max_seq_len
                         )
                     ]
                 ) + '\n'
             )
             contract_info_fh.flush()
-            print("Finished contract " + str(count))
+            print("Finished contract " + str(count) + " " + contract_id)
             count += 1
+
+# ["label": 0,1, "values": list of integers (positive = sending money, negative = receiving)]
+if __name__ == "__main__":
+    collect(500)
