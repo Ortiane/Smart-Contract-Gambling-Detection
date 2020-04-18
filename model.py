@@ -9,19 +9,20 @@ class Model(keras.models.Model):
         super(Model, self).__init__()
         self.output_size = output_size
     def build(self, input_shape=(500,3)):
-        self.conv_layer = Conv1D(filters=1,kernel_size=3,strides=2)
+        self.conv_layer = Conv1D(filters=5,kernel_size=3,strides=3)
+        #self.rnn = LSTM(self.output_size, input_shape = input_shape)
 
         self.rnn_1f = LSTM(self.output_size, return_sequences=True,input_shape = input_shape)
-        # self.rnn_1b = LSTM(self.output_size, return_sequences=True,input_shape = input_shape,activation='relu',go_backwards=True)
-        # self.bidir_1 = Bidirectional(self.rnn_1f, backward_layer=self.rnn_1b, input_shape = input_shape)
+        self.rnn_1b = LSTM(self.output_size, return_sequences=True,input_shape = input_shape,activation='relu',go_backwards=True)
+        self.bidir_1 = Bidirectional(self.rnn_1f, backward_layer=self.rnn_1b, input_shape = input_shape)
 
-        # self.rnn_2f = LSTM(int(self.output_size/2), return_sequences=True)
-        # self.rnn_2b = LSTM(int(self.output_size/2), return_sequences=True,activation='relu',go_backwards=True)
-        # self.bidir_2 = Bidirectional(self.rnn_2f, backward_layer=self.rnn_2b)     
+        self.rnn_2f = LSTM(int(self.output_size/2), return_sequences=True)
+        self.rnn_2b = LSTM(int(self.output_size/2), return_sequences=True,activation='relu',go_backwards=True)
+        self.bidir_2 = Bidirectional(self.rnn_2f, backward_layer=self.rnn_2b)     
 
-        # self.rnn_3f = LSTM(int(self.output_size/4))
-        # self.rnn_3b = LSTM(int(self.output_size/4),activation='relu',go_backwards=True)
-        # self.bidir_3 = Bidirectional(self.rnn_3f, backward_layer=self.rnn_3b)
+        self.rnn_3f = LSTM(int(self.output_size/4))
+        self.rnn_3b = LSTM(int(self.output_size/4),activation='relu',go_backwards=True)
+        self.bidir_3 = Bidirectional(self.rnn_3f, backward_layer=self.rnn_3b)
 
         # self.rnn_2 = LSTM(int(self.output_size/2), return_sequences=True)
         # self.rnn_3 = LSTM(int(self.output_size/4), return_sequences=True)
@@ -29,10 +30,10 @@ class Model(keras.models.Model):
         self.model = Sequential(
             [
                 self.conv_layer,
-                self.rnn_1f,
-                #self.bidir_1,
-                # self.bidir_2,
-                #self.bidir_3,
+                #self.rnn,
+                self.bidir_1,
+                self.bidir_2,
+                self.bidir_3,
                 self.output_layer,
             ]
         )

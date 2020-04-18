@@ -161,4 +161,4 @@ def collect(max_seq_len):
 
 # ["label": 0,1, "values": list of integers (positive = sending money, negative = receiving)]
 if __name__ == "__main__":
-    collect(500)
+    collect(1000)
