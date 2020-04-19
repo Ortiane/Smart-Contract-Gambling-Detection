@@ -15,16 +15,18 @@ def hex_string_to_int_string(x):
     return str(int(x, 16))
 
 
+# All requests to Etherscan API gets by default 10000 entries
+# To get fewer entires, use &page=<page number> and &offset=<max records to return>
 def get_contract_info(
     contract_address,
-    count=100,
+    count=10000,
     column_names=["value", "internal_value", "token_value"],
 ):
     # Get transactions
-    txn_req = f"http://api.etherscan.io/api?module=account&action=txlist&address={contract_address}&startblock=0&endblock={END_BLOCK}&page=1&offset=100&sort=desc&apikey={ETHERSCAN_API_KEY}"
+    txn_req = f"http://api.etherscan.io/api?module=account&action=txlist&address={contract_address}&startblock=0&endblock={END_BLOCK}&sort=desc&apikey={ETHERSCAN_API_KEY}"
     df = pd.DataFrame.from_dict(requests.get(txn_req).json()["result"])
     # Get internal transactions
-    internal_req = f"http://api.etherscan.io/api?module=account&action=txlistinternal&address={contract_address}&startblock=0&endblock={END_BLOCK}&page=1&offset=100&sort=desc&apikey={ETHERSCAN_API_KEY}"
+    internal_req = f"http://api.etherscan.io/api?module=account&action=txlistinternal&address={contract_address}&startblock=0&endblock={END_BLOCK}&sort=desc&apikey={ETHERSCAN_API_KEY}"
     internal_df = pd.DataFrame.from_dict(requests.get(internal_req).json()["result"])
     internal_df.rename(
         columns={
@@ -35,7 +37,7 @@ def get_contract_info(
         inplace=True,
     )
     # Get logs for token transfers
-    logs_req = f"https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock=0&toBlock=latest&address={contract_address}&page=1&offset=100&sort=desc&apikey={ETHERSCAN_API_KEY}"
+    logs_req = f"https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock=0&toBlock=latest&address={contract_address}&sort=desc&apikey={ETHERSCAN_API_KEY}"
     logs_df = pd.DataFrame.from_dict(requests.get(logs_req).json()["result"])
     if not logs_df.empty:
         logs_df = logs_df.apply(
@@ -72,7 +74,7 @@ def get_contract_info(
     return df
 
 
-def print_contract_info(contract_address, count=100):
+def print_contract_info(contract_address, count=10000):
     with pd.option_context(
         "display.max_rows",
         None,
@@ -131,14 +133,14 @@ def collect(max_seq_len):
     with open("contracts.csv", "r") as f:
         reader = csv.reader(f, delimiter=',')
         contract_list = []
-        count = 0
+        ct = 0
         for line in reader:
-            if count == 0:
-                count = 1
+            if ct == 0:
+                ct = 1
                 continue
             contract_list.append(line[:2])
     with open("data.csv", "w+") as contract_info_fh:
-        count = 0
+        index = 0
         for contract in contract_list:
             #contract_id, contract_label = contract.split(",")
             contract_id = contract[0]
@@ -156,9 +158,9 @@ def collect(max_seq_len):
                 ) + '\n'
             )
             contract_info_fh.flush()
-            print("Finished contract " + str(count) + " " + contract_id)
-            count += 1
+            print("Finished contract " + str(index) + " " + contract_id)
+            index += 1
 
 # ["label": 0,1, "values": list of integers (positive = sending money, negative = receiving)]
 if __name__ == "__main__":
-    collect(1000)
+    collect(10000)
