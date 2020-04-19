@@ -8,7 +8,7 @@ from preprocess import *
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--data_file", default="data.csv", type=str)
-    parser.add_argument("--output_size", default=512, type=int)
+    parser.add_argument("--output_size", default=256, type=int)
     parser.add_argument("--max_seq_len", default=10000, type=int)
     args = parser.parse_args()
     return args

@@ -114,19 +114,35 @@ def print_contract_info(contract_address, count=10000):
         )
 
 
+# def process_single_contract(contract_address, contract_label, count):
+#     info = get_contract_info(
+#                 contract_address,
+#                 count=count,
+#                 column_names=["value", "internal_value", "token_value",],
+#             )
+#     desc = ([contract_label, contract_address] + list(info).to_numpy().flatten())
+#     asc = ([contract_label, contract_address] + list(info)[::-1].to_numpy().flatten())
+#     return (
+#         [contract_label, contract_address]
+#         + list(
+#             get_contract_info(
+#                 contract_address,
+#                 count=count,
+#                 column_names=["value", "internal_value", "token_value",],
+#             )
+#             .to_numpy()
+#             .flatten()
+#         )
+#     )
 def process_single_contract(contract_address, contract_label, count):
-    return (
-        [contract_label, contract_address]
-        + list(
-            get_contract_info(
+    info = get_contract_info(
                 contract_address,
                 count=count,
                 column_names=["value", "internal_value", "token_value",],
             )
-            .to_numpy()
-            .flatten()
-        )
-    )
+    desc = ([contract_label, contract_address] + list(info.to_numpy().flatten()))
+    asc = ([contract_label, contract_address] + list(info.to_numpy().flatten())[::-1])
+    return desc, asc
 
 # row 1: [[v_0,i_0,t_0],[v_1,i_1,t_1],... [v_t,i_t,t_t]]
 def collect(max_seq_len):
@@ -149,13 +165,17 @@ def collect(max_seq_len):
             contract_label = int(contract_label)
             # data augmentation
             # descending order
-            desc =  [
-                        str(item)
-                        for item in process_single_contract(
+            desc, asc = process_single_contract(
                             contract_id, contract_label, max_seq_len
-                        )
-                    ]
-            asc = desc[::-1]
+            )
+            desc = [str(item) for item in desc]
+            asc = [str(item) for item in asc]
+            # desc =  [
+            #             str(item)
+            #             for item in process_single_contract(
+            #                 contract_id, contract_label, max_seq_len
+            #             )
+            #         ]
             contract_info_fh.write(",".join(desc) + '\n')
             # ascending order
             contract_info_fh.write(",".join(asc) + '\n')
