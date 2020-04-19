@@ -147,16 +147,18 @@ def collect(max_seq_len):
             contract_label = contract[1]
             contract_id = contract_id.strip()
             contract_label = int(contract_label)
-            contract_info_fh.write(
-                ",".join(
-                    [
+            # data augmentation
+            # descending order
+            desc =  [
                         str(item)
                         for item in process_single_contract(
                             contract_id, contract_label, max_seq_len
                         )
                     ]
-                ) + '\n'
-            )
+            asc = desc[::-1]
+            contract_info_fh.write(",".join(desc) + '\n')
+            # ascending order
+            contract_info_fh.write(",".join(asc) + '\n')
             contract_info_fh.flush()
             print("Finished contract " + str(index) + " " + contract_id)
             index += 1

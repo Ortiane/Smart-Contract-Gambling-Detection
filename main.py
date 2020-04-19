@@ -8,7 +8,7 @@ from preprocess import *
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--data_file", default="data.csv", type=str)
-    parser.add_argument("--output_size", default=256, type=int)
+    parser.add_argument("--output_size", default=512, type=int)
     parser.add_argument("--max_seq_len", default=10000, type=int)
     args = parser.parse_args()
     return args
@@ -37,7 +37,7 @@ def main():
         x=x_train,
         y=y_train,
         batch_size=8,
-        epochs=10, 
+        epochs=5, 
         verbose=1, 
         validation_split=0.1, 
         shuffle=True, 

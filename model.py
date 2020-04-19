@@ -9,10 +9,11 @@ class Model(keras.models.Model):
         super(Model, self).__init__()
         self.output_size = output_size
     def build(self, input_shape=(10000,3)):
-        self.conv_layer = Conv1D(input_shape=input_shape, filters=64, kernel_size=3, strides=2, activation='relu')
+        self.conv_layer = Conv1D(input_shape=input_shape, filters=256, kernel_size=3, strides=2, activation='relu')
         self.rnn_1 = LSTM(self.output_size,return_sequences=True)
         self.rnn_2 = LSTM(self.output_size,return_sequences=True)
         self.rnn_3 = LSTM(self.output_size)
+        #self.rnn_4 = LSTM(self.output_size)
 
 
         # self.rnn_1f = LSTM(self.output_size, return_sequences=True)
@@ -38,6 +39,7 @@ class Model(keras.models.Model):
                 self.rnn_1,
                 self.rnn_2,
                 self.rnn_3,
+                #self.rnn_4,
                 # self.bidir_1,
                 # self.bidir_2,
                 # self.bidir_3,
