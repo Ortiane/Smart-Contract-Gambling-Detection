@@ -1,14 +1,16 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 from model import *
 import argparse
 import numpy as np
 import tensorflow as tf
 from preprocess import *
-#import sys
+# tf.config.experimental.set_visible_devices([], 'GPU')
 
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--data_file", default="data.csv", type=str)
-    parser.add_argument("--output_size", default=512, type=int)
+    parser.add_argument("--output_size", default=256, type=int)
     parser.add_argument("--max_seq_len", default=100, type=int)
     args = parser.parse_args()
     return args
@@ -36,16 +38,16 @@ def main():
     model.fit(
         x=x_train,
         y=y_train,
-        batch_size=64,
-        epochs=20, 
-        verbose=1, 
-        validation_split=0.1, 
-        shuffle=True, 
+        batch_size=128,
+        epochs=10,
+        verbose=1,
+        validation_split=0.1,
+        shuffle=True,
         validation_freq=1
     )
     # predict on the training set itself
     result = model.predict(
-        x=x_train,
+        x=x_train[::10],
         verbose=0
     )
     size = len(y_train)
@@ -57,7 +59,13 @@ def main():
         if final == true:
             accu_count += 1
         print(f"Predict label {predict}, true label {true}")
-    print(f"Accuracy is {accu_count/size}, benchmark is {1 - np.sum(y_train)/size}")
+    print(f"Accuracy is {accu_count / size}, benchmark is {1 - np.sum(y_train) / size}")
+    # result = tf.round(result)
+    # print(tf.math.count_nonzero(result), len(result))
+    # print(tf.math.count_nonzero(y_train), len(y_train))
+
+    # for (predict, true) in zip(result, y_train):
+    #     print(f"Predict label {predict}, true label {true}")
 
 
 if __name__ == '__main__':
