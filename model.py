@@ -10,9 +10,9 @@ class Model(keras.models.Model):
         self.output_size = output_size
     def build(self, input_shape=(10000,3)):
         self.conv_layer = Conv1D(input_shape=input_shape, filters=256, kernel_size=3, strides=2, activation='relu')
-        self.rnn_1 = LSTM(self.output_size,return_sequences=True)
-        self.rnn_2 = LSTM(self.output_size,return_sequences=True)
-        self.rnn_3 = LSTM(self.output_size)
+        self.rnn_1 = GRU(self.output_size,return_sequences=True)
+        self.rnn_2 = GRU(self.output_size,return_sequences=True)
+        self.rnn_3 = GRU(self.output_size)
         #self.rnn_4 = LSTM(self.output_size)
 
 

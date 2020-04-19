@@ -8,8 +8,8 @@ from preprocess import *
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--data_file", default="data.csv", type=str)
-    parser.add_argument("--output_size", default=256, type=int)
-    parser.add_argument("--max_seq_len", default=10000, type=int)
+    parser.add_argument("--output_size", default=512, type=int)
+    parser.add_argument("--max_seq_len", default=100, type=int)
     args = parser.parse_args()
     return args
 
@@ -36,8 +36,8 @@ def main():
     model.fit(
         x=x_train,
         y=y_train,
-        batch_size=8,
-        epochs=5, 
+        batch_size=64,
+        epochs=20, 
         verbose=1, 
         validation_split=0.1, 
         shuffle=True, 
@@ -48,8 +48,16 @@ def main():
         x=x_train,
         verbose=0
     )
+    size = len(y_train)
+    accu_count = 0
     for (predict, true) in zip(result, y_train):
+        final = 0
+        if predict >= 0.5:
+            final = 1
+        if final == true:
+            accu_count += 1
         print(f"Predict label {predict}, true label {true}")
+    print(f"Accuracy is {accu_count/size}, benchmark is {1 - np.sum(y_train)/size}")
 
 
 if __name__ == '__main__':
