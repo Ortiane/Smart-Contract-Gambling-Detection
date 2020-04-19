@@ -43,6 +43,7 @@ def main():
         shuffle=True, 
         validation_freq=1
     )
+    # predict on the training set itself
     result = model.predict(
         x=x_train,
         verbose=0

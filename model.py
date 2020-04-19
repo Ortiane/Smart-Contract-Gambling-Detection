@@ -9,12 +9,15 @@ class Model(keras.models.Model):
         super(Model, self).__init__()
         self.output_size = output_size
     def build(self, input_shape=(10000,3)):
-        self.conv_layer = Conv1D(filters=64, kernel_size=3, padding='same', activation='relu')
-        self.rnn = LSTM(self.output_size, input_shape = input_shape)
+        self.conv_layer = Conv1D(input_shape=input_shape, filters=64, kernel_size=3, strides=2, activation='relu')
+        self.rnn_1 = LSTM(self.output_size,return_sequences=True)
+        self.rnn_2 = LSTM(self.output_size,return_sequences=True)
+        self.rnn_3 = LSTM(self.output_size)
 
-        # self.rnn_1f = LSTM(self.output_size, return_sequences=True,input_shape = input_shape)
-        # self.rnn_1b = LSTM(self.output_size, return_sequences=True,input_shape = input_shape,activation='relu',go_backwards=True)
-        # self.bidir_1 = Bidirectional(self.rnn_1f, backward_layer=self.rnn_1b, input_shape = input_shape)
+
+        # self.rnn_1f = LSTM(self.output_size, return_sequences=True)
+        # self.rnn_1b = LSTM(self.output_size, return_sequences=True,activation='relu',go_backwards=True)
+        # self.bidir_1 = Bidirectional(self.rnn_1f, backward_layer=self.rnn_1b)
 
         # self.rnn_2f = LSTM(int(self.output_size/2), return_sequences=True)
         # self.rnn_2b = LSTM(int(self.output_size/2), return_sequences=True,activation='relu',go_backwards=True)
@@ -32,7 +35,9 @@ class Model(keras.models.Model):
             [
                 #self.embedding,
                 self.conv_layer,
-                self.rnn,
+                self.rnn_1,
+                self.rnn_2,
+                self.rnn_3,
                 # self.bidir_1,
                 # self.bidir_2,
                 # self.bidir_3,
@@ -41,6 +46,7 @@ class Model(keras.models.Model):
             ]
         )
         super(Model, self).build(input_shape)
+        #self.model.summary()
     
     def call(self, inputs):
         if len(inputs.shape) == 2:
@@ -50,7 +56,7 @@ class Model(keras.models.Model):
 
 if __name__ == '__main__':    
     # Build and run model
-    MAX_SEQ_LEN = 10000
+    MAX_SEQ_LEN = 100
     OUTPUT_SIZE = 256
     model = Model(
         output_size=OUTPUT_SIZE, 
