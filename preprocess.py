@@ -17,24 +17,15 @@ def process_data(file_path, max_seq_len):
             for ele in range(len(x)):
                 x[ele] = float(w3.fromWei(int(x[ele]),'gwei'))
             x = np.array(x).reshape(-1,3)
-            #remove contracts that are all zeros
-            if not np.any(x):
+            #remove gambling contracts that are all zeros (you can't be gambling with no money)
+            if not np.any(x) and y == 0:
               continue
-            if len(x)<max_seq_len:
-              x_train.append(x)
-              y_train.append(y)
-              if y==1:
-                gambling+=1
-              else:
-                non_gambling+=1
+            x_train.append(x)
+            y_train.append(y)
+            if y==1:
+              gambling+=1
             else:
-              for i in range(0,len(x)-max_seq_len,max_seq_len//10):
-                x_train.append(x[i:i+max_seq_len])
-                y_train.append(y)
-                if y==1:
-                  gambling+=1
-                else:
-                  non_gambling+=1
+              non_gambling+=1
 
 
         print(gambling,non_gambling)
@@ -46,14 +37,10 @@ def process_data(file_path, max_seq_len):
                     dtype='float64',
                     maxlen=max_seq_len,
                     padding='post',
-                    truncating='post',
-                    value=-1.0
+                    value=-1
                 )
-    # x_train = tf.convert_to_tensor(x_train,dtype=tf.float64)
-    # y_train = tf.convert_to_tensor(y_train,dtype=tf.float64)
 
     y_train = np.array(y_train)
-    #print(x_train.shape)
     return x_train, y_train
 
 if __name__ == '__main__':
