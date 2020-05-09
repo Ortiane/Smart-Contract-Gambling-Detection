@@ -11,7 +11,7 @@ Tested variable number of filters.
 Tested variable number of layers
 ![ROC_curve_variable_layers.png](ROC_curve_variable_layers.png)
 
-Tested variable number of hiddem sizes
+Tested variable number of hidden sizes
 ![ROC_curve_variable_hidden.png](ROC_curve_variable_hidden.png)
 
 The tests are all non optimal as our dataset simply isn't large enough to have low variance between tests. On average we see that having a hidden size of at least 128 is helpful and at least 6 filters possibly more while having at least 2 bidirectional lstm layers will provide adequate results.
