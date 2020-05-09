@@ -19,6 +19,8 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--data_file", default="data.csv", type=str)
     parser.add_argument("--output_size", default=128, type=int)
+    parser.add_argument("--num_filters", default=8, type=int)
+    parser.add_argument("--num_layers", default=2, type=int)
     parser.add_argument("--max_seq_len", default=100, type=int)
     args = parser.parse_args()
     return args
@@ -29,17 +31,24 @@ def main():
     args = parse_args()
     DATA_FILE = args.data_file
     OUTPUT_SIZE = args.output_size
+    NUM_FILTERS = args.num_filters
+    NUM_LAYERS = args.num_layers
     MAX_SEQ_LEN = args.max_seq_len
     # Read in data
     X, y = process_data(DATA_FILE, MAX_SEQ_LEN)
     print(f"Number of examples is {len(X)} ")
+    fig = plt.figure(1, figsize=(8.78, 6.7))
     # Build and run model
-    model = Model(output_size=OUTPUT_SIZE,)
+    model = Model(
+        output_size=OUTPUT_SIZE, num_filters=NUM_FILTERS, num_layers=NUM_LAYERS
+    )
     model.compile(loss="binary_crossentropy", optimizer="adagrad", metrics=["accuracy"])
     model.build(input_shape=(MAX_SEQ_LEN, 3))
     model.summary()
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=18)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=18
+    )
 
     model.fit(
         x=X_train,
@@ -56,16 +65,16 @@ def main():
     y_pred = model.predict(X_test).ravel()
     fpr, tpr, thresholds = roc_curve(y_test, y_pred)
     auc_value = auc(fpr, tpr)
-    
-    plt.figure(1)
-    plt.plot([0, 1], [0, 1], 'k--')
-    plt.plot(fpr, tpr, label='LSTM (area = {:.3f})'.format(auc_value))
-    plt.xlabel('False positive rate')
-    plt.ylabel('True positive rate')
-    plt.title('ROC curve')
-    plt.legend(loc='best')
-    plt.savefig('ROC_curve.png')
 
+    plt.plot([0, 1], [0, 1], "k--")
+    plt.plot(fpr, tpr, label=f"LSTM (area = {auc_value:.3f})")
+
+    plt.xlabel("False positive rate")
+    plt.ylabel("True positive rate")
+    plt.title("ROC curve")
+    plt.legend(loc="lower right")
+    plt.tight_layout()
+    plt.savefig("ROC_curve.png")
 
 
 if __name__ == "__main__":

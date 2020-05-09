@@ -5,14 +5,24 @@ import tensorflow as tf
 
 
 class Model(keras.models.Model):
-    def __init__(self, output_size=128):
+
+    def __init__(self, output_size=128, num_filters=8, num_layers=2):
         super(Model, self).__init__()
         self.output_size = output_size
+        self.num_filters = num_filters
+        self.num_layers = num_layers
+
     def build(self, input_shape=(10000,3)):
         self.mask = Masking(-1)
-        self.conv_layer = Conv1D(input_shape=input_shape, filters=8, kernel_size=3, strides=3, activation='relu')
-        self.rnn_1 = Bidirectional(LSTM(self.output_size, return_sequences=True))
-        self.rnn_2 = Bidirectional(LSTM(self.output_size))
+        self.conv_layer = Conv1D(input_shape=input_shape, filters=self.num_filters, kernel_size=3, strides=3, activation='relu')
+
+        lstm_list = []
+        for n in range(self.num_layers - 1):
+            lstm_list.append(Bidirectional(LSTM(self.output_size, return_sequences=True)))
+
+        lstm_list.append(Bidirectional(LSTM(self.output_size)))
+
+        self.lstm = Sequential(lstm_list)
         self.output_layer = Dense(1, activation ='sigmoid')
         super(Model, self).build(input_shape)
     
@@ -21,8 +31,7 @@ class Model(keras.models.Model):
             inputs = tf.expand_dims(inputs, 0)
         x = self.mask(inputs)
         x = self.conv_layer(x)
-        x = self.rnn_1(x)
-        x = self.rnn_2(x)
+        x = self.lstm(x)
         x = self.output_layer(x)
         return x
 
